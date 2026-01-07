@@ -27,7 +27,7 @@
 
 ## Status
 
-- Current phase: Step 2 - Implementation planning
+- Current phase: Step 3 - UI parity
 - Completed:
   - Read `elixir_phoenix_liveview_guide.md`.
   - Reviewed `doc-rocker-svelte.md` (Svelte structure and behavior notes).
@@ -38,8 +38,9 @@
   - Confirmed there is no `/api/auth` endpoint (not present in `doc-rocker-svelte.md`).
   - Created `README.md` for the Phoenix LiveView port.
   - Added detailed implementation plan in this document.
+  - Generated Phoenix scaffold in repo root (app: `doc_rocker`, module: `DocRocker`; no Ecto/mailer/dashboard; deps not installed).
 - Next:
-  - Begin Phoenix project scaffold after approval.
+  - Port app shell + PWA meta tags and copy `static/` assets into `priv/static`.
 
 ## Plan (stepwise)
 
@@ -106,6 +107,7 @@
 
 - No `/api/mcp` endpoint exists; MCP support is via an external stdin wrapper that calls the normal API.
 - No `/api/auth` endpoint exists in the source.
+- Phoenix app name: `doc_rocker` (module `DocRocker`).
 
 ## Migration Learnings (project-specific)
 
