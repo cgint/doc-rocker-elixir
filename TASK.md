@@ -44,10 +44,12 @@
   - Copied PWA/static assets from `static/` into `priv/static/`.
   - Added `HomeLive` with main page structure and initial UI state handling.
   - Ported component CSS for LogoGfx, InputField, SendButton, DocumentationPicks, ResponseDisplay, and MarkdownDisplay.
+  - Added backend scaffolding for `/api/chat` (SSE) and `/api/rock` endpoints.
+  - Implemented SearchService, Perplexity, Tavily, and LLM provider connectors in Elixir.
 - Next:
   - Implement markdown rendering + copy actions and syntax highlighting.
   - Add LiveView streaming flow for `/api/chat` (status + final) and scroll behavior.
-  - Port SearchService pipeline and `/api/rock` endpoint with User-Agent validation.
+  - Wire LiveView submit to SearchService (streaming updates).
 
 ## Plan (stepwise)
 

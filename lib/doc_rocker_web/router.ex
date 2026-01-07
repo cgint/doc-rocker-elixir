@@ -20,8 +20,10 @@ defmodule DocRockerWeb.Router do
     live "/", HomeLive, :index
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", DocRockerWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", DocRockerWeb do
+    pipe_through :api
+
+    post "/chat", ChatController, :create
+    post "/rock", RockController, :create
+  end
 end
