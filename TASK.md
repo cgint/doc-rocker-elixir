@@ -42,8 +42,12 @@
   - Ported app shell metadata, PWA tags, and service worker registration into Phoenix root layout.
   - Replaced base CSS with source `app.html` styles for pixel parity.
   - Copied PWA/static assets from `static/` into `priv/static/`.
+  - Added `HomeLive` with main page structure and initial UI state handling.
+  - Ported component CSS for LogoGfx, InputField, SendButton, DocumentationPicks, ResponseDisplay, and MarkdownDisplay.
 - Next:
-  - Build LiveView UI and port component CSS (InputField, DocumentationPicks, ResponseDisplay, etc.).
+  - Implement markdown rendering + copy actions and syntax highlighting.
+  - Add LiveView streaming flow for `/api/chat` (status + final) and scroll behavior.
+  - Port SearchService pipeline and `/api/rock` endpoint with User-Agent validation.
 
 ## Plan (stepwise)
 

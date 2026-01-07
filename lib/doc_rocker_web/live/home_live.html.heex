@@ -1,0 +1,204 @@
+<main class="container">
+  <div class="logo-container">
+    <img
+      src={~p"/logo.webp"}
+      alt="Doc-Rocker Logo"
+      class={["logo-gfx", @loading && "loading"]}
+    />
+  </div>
+
+  <div class="chat-interface">
+    <div class="input-area">
+      <.form for={%{}} as="chat" phx-change="validate" phx-submit="submit">
+        <div class="input-container">
+          <textarea
+            name="query"
+            placeholder="Ask a question about documented knowledge..."
+            rows="3"
+            class={[
+              "input-field",
+              @query_too_long && "over-limit",
+              @query_near_limit && !@query_too_long && "near-limit"
+            ]}
+            disabled={@loading}
+          ><%= @query %></textarea>
+
+          <span
+            class={[
+              "character-count",
+              @query_too_long && "over-limit",
+              @query_near_limit && !@query_too_long && "near-limit"
+            ]}
+          >
+            <%= @character_count %>/400
+          </span>
+
+          <%= if @query_too_long do %>
+            <div class="warning-message">
+              Query too long! Tavily search requires 400 characters or less.
+            </div>
+          <% end %>
+        </div>
+
+        <button
+          type="submit"
+          class="send-button"
+          disabled={
+            @loading or String.trim(@query) == "" or @query_too_long or
+              not Enum.any?(@picks, & &1.selected)
+          }
+          aria-label="Send message"
+        >
+          <%= if @loading do %>
+            <span class="loading"></span>
+          <% else %>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="send-icon"
+            >
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          <% end %>
+        </button>
+      </.form>
+    </div>
+
+    <div class="documentation-picks">
+      <div class="header">
+        <h2>Predefined Picks <span class="beta-tag">beta</span></h2>
+        <button
+          class="custom-toggle-button"
+          type="button"
+          phx-click="toggle_custom_input"
+          aria-label={if @show_custom_input, do: "Hide custom domain input", else: "Add custom domain"}
+        >
+          <%= if @show_custom_input do %>
+            &#x2715;
+          <% else %>
+            +
+          <% end %>
+        </button>
+      </div>
+
+      <%= if @show_custom_input do %>
+        <form class="custom-domain-input" phx-submit="add_custom_domain" phx-change="custom_domain_change">
+          <div class="input-group">
+            <input
+              type="text"
+              name="custom_domain"
+              value={@custom_domain}
+              placeholder="Enter custom domain (e.g., example.com)"
+            />
+            <button type="submit">Add</button>
+          </div>
+          <%= if @custom_domain_error != "" do %>
+            <div class="error-message"><%= @custom_domain_error %></div>
+          <% end %>
+        </form>
+      <% end %>
+
+      <div class="picks-grid">
+        <%= for {pick, index} <- Enum.with_index(@picks) do %>
+          <button
+            type="button"
+            class={["pick-button", pick.selected && "selected"]}
+            phx-click="toggle_pick"
+            phx-value-index={index}
+          >
+            <%= pick.name %>
+          </button>
+        <% end %>
+      </div>
+    </div>
+
+    <%= if @loading do %>
+      <div id="status_message" class="status-message">
+        <%= Phoenix.HTML.raw(@status_message) %>
+      </div>
+    <% end %>
+
+    <div class="response-container">
+      <%= if @error do %>
+        <div class="error">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="error-icon"
+          >
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          <p><%= @error %></p>
+        </div>
+      <% else %>
+        <%= if @response != "" do %>
+          <div id="combined_result" class="response">
+            <div class="content-wrapper">
+              <.markdown_display markdown={@response} show_copy_buttons={true} />
+            </div>
+
+            <%= if @citations != [] do %>
+              <div class="citations">
+                <h3>Sources:</h3>
+                <ul>
+                  <%= for citation <- @citations do %>
+                    <li>
+                      <a href={citation} target="_blank" rel="noopener noreferrer">
+                        <%= citation %>
+                      </a>
+                    </li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+          </div>
+
+          <%= if @raw_results != [] do %>
+            <div class="raw-results response">
+              <h2>Individual Results the AI Answer is based on</h2>
+              <%= for {result, _index} <- Enum.with_index(@raw_results) do %>
+                <div class="raw-result response">
+                  <div class="content-wrapper">
+                    <.markdown_display markdown={result.answer} show_copy_buttons={true} />
+                  </div>
+
+                  <%= if Map.get(result, :citations, []) != [] do %>
+                    <div class="citations">
+                      <h3>Sources:</h3>
+                      <ul>
+                        <%= for citation <- result.citations do %>
+                          <li>
+                            <a href={citation} target="_blank" rel="noopener noreferrer">
+                              <%= citation %>
+                            </a>
+                          </li>
+                        <% end %>
+                      </ul>
+                    </div>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</main>
