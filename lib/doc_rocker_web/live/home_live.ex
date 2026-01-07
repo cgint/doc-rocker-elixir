@@ -34,7 +34,8 @@ defmodule DocRockerWeb.HomeLive do
        picks: @documentation_picks,
        custom_domain: "",
        custom_domain_error: "",
-       show_custom_input: false
+       show_custom_input: false,
+       picks_initialized: false
      )}
   end
 
@@ -51,8 +52,11 @@ defmodule DocRockerWeb.HomeLive do
   end
 
   def handle_event("submit", _params, socket) do
-    query = socket.assigns.query
-    selected = selected_picks(socket.assigns.picks)
+    if socket.assigns.loading do
+      {:noreply, socket}
+    else
+      query = socket.assigns.query
+      selected = selected_picks(socket.assigns.picks)
 
     error =
       cond do
@@ -72,28 +76,29 @@ defmodule DocRockerWeb.HomeLive do
           nil
       end
 
-    if error do
-      {:noreply, assign(socket, error: error)}
-    else
-      picked_domains = Enum.map(selected, & &1.domain)
-      parent = self()
+      if error do
+        {:noreply, assign(socket, error: error)}
+      else
+        picked_domains = Enum.map(selected, & &1.domain)
+        parent = self()
 
-      Task.start(fn -> run_search(parent, query, picked_domains) end)
+        Task.start(fn -> run_search(parent, query, picked_domains) end)
 
-      socket =
-        socket
-        |> assign(
-          error: nil,
-          response: "",
-          citations: [],
-          raw_results: [],
-          status_message: "",
-          loading: true
-        )
+        socket =
+          socket
+          |> assign(
+            error: nil,
+            response: "",
+            citations: [],
+            raw_results: [],
+            status_message: "",
+            loading: true
+          )
 
-      Process.send_after(self(), {:scroll_to, "status_message", "nearest"}, 10)
+        Process.send_after(self(), {:scroll_to, "status_message", "nearest"}, 10)
 
-      {:noreply, socket}
+        {:noreply, socket}
+      end
     end
   end
 
@@ -152,7 +157,12 @@ defmodule DocRockerWeb.HomeLive do
         end
       end)
 
-    {:noreply, assign(socket, picks: picks)}
+    socket =
+      socket
+      |> assign(picks: picks)
+      |> push_event("save_picks", %{names: selected_pick_names(picks)})
+
+    {:noreply, socket}
   end
 
   def handle_event("toggle_custom_input", _params, socket) do
@@ -191,13 +201,58 @@ defmodule DocRockerWeb.HomeLive do
 
         custom_pick = %{name: "Custom: #{domain}", domain: domain, selected: true}
 
-        {:noreply,
-         assign(socket,
-           picks: picks ++ [custom_pick],
-           custom_domain_error: "",
-           show_custom_input: false,
-           custom_domain: domain
-         )}
+        picks = picks ++ [custom_pick]
+
+        socket =
+          socket
+          |> assign(
+            picks: picks,
+            custom_domain_error: "",
+            show_custom_input: false,
+            custom_domain: domain
+          )
+          |> push_event("save_picks", %{names: selected_pick_names(picks)})
+
+        {:noreply, socket}
+    end
+  end
+
+  def handle_event("select_pick_by_name", %{"name" => name}, socket) do
+    picks =
+      socket.assigns.picks
+      |> Enum.map(fn pick ->
+        if pick.name == name do
+          %{pick | selected: true}
+        else
+          %{pick | selected: false}
+        end
+      end)
+
+    {:noreply, assign(socket, picks: picks, picks_initialized: true)}
+  end
+
+  def handle_event("set_custom_domain", %{"domain" => domain}, socket) do
+    domain = String.trim(domain || "")
+
+    if domain == "" or not valid_domain?(domain) do
+      {:noreply, assign(socket, picks_initialized: true)}
+    else
+      picks =
+        socket.assigns.picks
+        |> Enum.reject(fn pick -> String.starts_with?(pick.name, "Custom: ") end)
+        |> Enum.map(fn pick -> %{pick | selected: false} end)
+
+      custom_pick = %{name: "Custom: #{domain}", domain: domain, selected: true}
+      picks = picks ++ [custom_pick]
+
+      {:noreply,
+       assign(socket,
+         picks: picks,
+         custom_domain: domain,
+         custom_domain_error: "",
+         show_custom_input: false,
+         picks_initialized: true
+       )}
     end
   end
 
@@ -210,6 +265,23 @@ defmodule DocRockerWeb.HomeLive do
 
   defp selected_picks(picks) do
     Enum.filter(picks, & &1.selected)
+  end
+
+  defp selected_pick_names(picks) do
+    Enum.reduce(picks, [], fn pick, acc ->
+      if pick.selected do
+        name =
+          if String.starts_with?(pick.name, "Custom: ") do
+            "custom:" <> pick.domain
+          else
+            pick.name
+          end
+
+        acc ++ [name]
+      else
+        acc
+      end
+    end)
   end
 
   defp has_worldwide?(selected) do

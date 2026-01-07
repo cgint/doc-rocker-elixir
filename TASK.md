@@ -49,10 +49,12 @@
   - Wired LiveView submit to SearchService with status updates and scroll events.
   - Added JS hooks for scrolling and markdown rendering (marked + highlight.js).
   - Added assets `package.json` with marked/highlight.js dependencies.
+  - Restored documentation pick persistence via localStorage.
+  - Added Cmd+Enter submit shortcut and guarded double-submit while loading.
 - Next:
   - Install JS/Elixir deps (`npm install` in `assets/`, `mix deps.get`) and build assets.
   - Confirm highlight.js CSS output is loaded and markdown rendering matches Svelte output.
-  - Add localStorage persistence for documentation picks.
+  - Confirm remaining LiveView UX parity items (copy buttons, selection persistence, error states).
 
 ## Plan (stepwise)
 

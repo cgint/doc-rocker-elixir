@@ -142,6 +142,66 @@ const Hooks = {
       }
     },
   },
+  InputField: {
+    mounted() {
+      this.el.addEventListener("keydown", event => {
+        if (event.key === "Enter" && event.metaKey) {
+          event.preventDefault()
+          this.pushEvent("submit", {})
+        }
+      })
+    },
+  },
+  DocumentationPicks: {
+    mounted() {
+      this.storageKey = "selectedDocumentationPicks"
+      this.handleEvent("save_picks", ({names}) => {
+        if (Array.isArray(names)) {
+          localStorage.setItem(this.storageKey, JSON.stringify(names))
+        }
+      })
+      this.applySavedSelections()
+    },
+    updated() {
+      this.applySavedSelections()
+    },
+    applySavedSelections() {
+      if (this.hasApplied) {
+        return
+      }
+
+      const saved = localStorage.getItem(this.storageKey)
+      if (!saved) {
+        this.hasApplied = true
+        return
+      }
+
+      try {
+        const savedPickNames = JSON.parse(saved)
+        if (!Array.isArray(savedPickNames)) {
+          this.hasApplied = true
+          return
+        }
+
+        const customPickPrefix = "custom:"
+        const customPick = savedPickNames.find(name => typeof name === "string" && name.startsWith(customPickPrefix))
+
+        if (customPick) {
+          const domain = customPick.replace(customPickPrefix, "")
+          this.pushEvent("set_custom_domain", {domain: domain})
+        } else {
+          const firstPick = savedPickNames.length > 0 ? savedPickNames[0] : null
+          if (firstPick) {
+            this.pushEvent("select_pick_by_name", {name: firstPick})
+          }
+        }
+      } catch (error) {
+        console.error("Error parsing saved documentation picks:", error)
+      }
+
+      this.hasApplied = true
+    },
+  },
 }
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,

@@ -21,6 +21,7 @@
               @query_near_limit && !@query_too_long && "near-limit"
             ]}
             disabled={@loading}
+            phx-hook="InputField"
           ><%= @query %></textarea>
 
           <span
@@ -72,7 +73,7 @@
       </.form>
     </div>
 
-    <div class="documentation-picks">
+    <div class="documentation-picks" phx-hook="DocumentationPicks">
       <div class="header">
         <h2>Predefined Picks <span class="beta-tag">beta</span></h2>
         <button
