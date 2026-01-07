@@ -6,6 +6,7 @@
 - Improve streaming response UX using LiveView capabilities (more professional experience).
 - Create a new Phoenix project in the repo root.
 - Reuse original assets from `static` and UI/CSS/behavior from `doc-rocker-svelte.md`.
+- If something is not present in `doc-rocker-svelte.md`, treat it as non-existent.
 - Full feature parity, including all API endpoints and API users.
 - No new auth flows; keep simple/none as current.
 - Streaming UX: show working status and partial/segmented updates (high-level, not too detailed).

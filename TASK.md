@@ -35,8 +35,8 @@
   - Static asset folder from original project added to repo (`static`).
   - Extracted source system analysis into `PORTING_OVERVIEW.html`, `PORTING_OVERVIEW.puml`, and `PORTING_OVERVIEW.svg`.
   - Confirmed there is no `/api/mcp` endpoint; MCP is handled via an external stdin wrapper that calls existing APIs.
+  - Confirmed there is no `/api/auth` endpoint (not present in `doc-rocker-svelte.md`).
 - Next:
-  - Confirm `/api/auth` server behavior if required.
   - Produce a detailed implementation plan after all spec gaps are resolved.
 
 ## Plan (stepwise)
@@ -75,6 +75,7 @@
 ## Decisions
 
 - No `/api/mcp` endpoint exists; MCP support is via an external stdin wrapper that calls the normal API.
+- No `/api/auth` endpoint exists in the source.
 
 ## Migration Learnings (project-specific)
 
@@ -82,3 +83,4 @@
 - `doc-rocker-svelte.md` is the authoritative reference for UI/CSS/behavior.
 - Source system analysis artifacts are available in `PORTING_OVERVIEW.html` and `PORTING_OVERVIEW.puml` (diagram in `PORTING_OVERVIEW.svg`).
 - MCP support is external (stdin wrapper), not an in-app HTTP endpoint.
+- If something is not present in `doc-rocker-svelte.md`, treat it as non-existent.
