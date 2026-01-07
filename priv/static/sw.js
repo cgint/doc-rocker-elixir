@@ -1,4 +1,4 @@
-const CACHE_NAME = 'doc-rocker-v1';
+const CACHE_NAME = 'doc-rocker-v2';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
@@ -54,6 +54,11 @@ self.addEventListener('fetch', (event) => {
 
   // Skip cross-origin requests
   if (!event.request.url.startsWith(self.location.origin)) {
+    return;
+  }
+
+  const url = new URL(event.request.url);
+  if (url.pathname.startsWith('/live')) {
     return;
   }
 
@@ -142,7 +147,9 @@ self.addEventListener('fetch', (event) => {
                 headers: { 'Content-Type': 'text/html' }
               });
             }
+
+            return Response.error();
           });
       })
   );
-}); 
+});

@@ -45,3 +45,19 @@ Last message: %Phoenix.Socket.Message{event: "validate", value: "query=s", ...}
 
 **Status after fix**
 - User still reported the same `FunctionClauseError` with the old `%{"query" => "s"}` payload, which indicates the running BEAM likely did not reload the updated module. Next check: restart `mix phx.server` (or run `mix clean` then restart) to ensure the new `handle_event/3` clause is loaded.
+
+## Issue: Browser console shows unknown LiveView hooks + service worker Response error
+
+**Observed behavior**
+- Browser console logs repeat `unknown hook found for "ScrollHandler"`, `"InputField"`, `"DocumentationPicks"`.
+- Service worker throws `Uncaught (in promise) TypeError: Failed to convert value to 'Response'.`
+- LiveView falls back to longpoll and UI responsiveness degrades.
+
+**Likely cause**
+- Service worker caches stale `app.js` or serves an invalid response when a request fails, so the LiveView JS that defines hooks is not the current one.
+- SW `fetch` handler can resolve to `undefined` on non-navigate requests, which triggers the `Failed to convert value to 'Response'` error.
+
+**Fix applied**
+- Disable service worker registration on localhost and unregister existing SWs in dev.
+- Update SW `fetch` handler to always return a valid `Response` and skip `/live` requests.
+- Bump SW cache version to invalidate stale assets.
