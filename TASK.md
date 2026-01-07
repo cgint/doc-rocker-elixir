@@ -51,6 +51,7 @@
   - Added assets `package.json` with marked/highlight.js dependencies.
   - Restored documentation pick persistence via localStorage.
   - Added Cmd+Enter submit shortcut and guarded double-submit while loading.
+  - Matched Cmd+Enter behavior to ignore disabled/over-limit state.
   - Removed unused `phoenix-colocated` hook import.
   - Installed JS and Elixir deps and validated asset build.
   - Adjusted asset bundling for marked/highlight and CommonJS topbar.

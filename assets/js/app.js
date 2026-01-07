@@ -144,6 +144,9 @@ const Hooks = {
     mounted() {
       this.el.addEventListener("keydown", event => {
         if (event.key === "Enter" && event.metaKey) {
+          if (this.el.disabled || this.el.classList.contains("over-limit")) {
+            return
+          }
           event.preventDefault()
           this.pushEvent("submit", {})
         }
