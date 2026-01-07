@@ -20,9 +20,12 @@
 - Persist all user requirements and guidelines in `AGENTS.md` when provided.
 - Do not ask whether to persist important information; decide and persist autonomously.
 - Do not repeatedly ask for confirmation once instructions are recorded; follow the agreed rules.
+- run `./precommit.sh` after bigger changes made to see if there are errors
 
 ---
+
 - DO NOT CHANGE THE PART - STARTING FROM HERE -
+
 ---
 
 ## Path of See, think, act
@@ -145,5 +148,7 @@ to get it done without changing existing code that is not related to the request
 If you are unsure please ask.
 
 ---
+
 - DO NOT CHANGE THE PART - ENDING HERE -
+
 ---
