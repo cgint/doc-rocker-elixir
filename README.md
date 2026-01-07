@@ -57,6 +57,14 @@ mix setup
 mix phx.server
 ```
 
+## Docker
+
+```
+docker compose up --build
+```
+
+Set `SECRET_KEY_BASE` and the `VITE_*` API keys in your environment (see `docker-compose.yml`).
+
 ## Search Pipeline
 
 - Perplexity + Tavily searches run in parallel.

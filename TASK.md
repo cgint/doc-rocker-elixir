@@ -57,9 +57,12 @@
   - Ported `/markdown-demo` LiveView page.
   - Updated `mix assets.setup` to install JS dependencies and documented routes/dev setup in `README.md`.
   - Verified highlight.js CSS is bundled into `priv/static/assets/js/app.css`.
+  - Added Dockerfile, docker-compose, and .dockerignore for self-hosted deployment.
+  - Documented Docker usage in `README.md`.
 - Next:
   - Confirm remaining LiveView UX parity items (copy buttons, selection persistence, error states).
   - Remove Tailwind/daisyUI from build if they introduce unwanted side effects.
+  - Verify Docker release boot (manual).
 
 ## Plan (stepwise)
 

@@ -1,0 +1,13 @@
+/.git/
+/_build/
+/deps/
+/tmp/
+/doc/
+/cover/
+/priv/static/assets/
+/assets/node_modules/
+/assets/.cache/
+/.elixir_ls/
+/erl_crash.dump
+*.ez
+*.tar
