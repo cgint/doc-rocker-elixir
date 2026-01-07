@@ -19,13 +19,13 @@
 
 // Include phoenix_html to handle method=PUT/DELETE in forms and buttons.
 import "phoenix_html"
-import {marked} from "marked"
-import hljs from "highlight.js"
-import "highlight.js/styles/github.css"
+import {marked} from "../vendor/marked"
+import hljs from "../vendor/highlight"
+import "../vendor/highlight.css"
 // Establish Phoenix Socket and LiveView configuration.
 import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
-import topbar from "../vendor/topbar"
+import topbar from "../vendor/topbar.cjs"
 
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 marked.setOptions({

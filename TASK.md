@@ -52,10 +52,12 @@
   - Restored documentation pick persistence via localStorage.
   - Added Cmd+Enter submit shortcut and guarded double-submit while loading.
   - Removed unused `phoenix-colocated` hook import.
+  - Installed JS and Elixir deps and validated asset build.
+  - Adjusted asset bundling for marked/highlight and CommonJS topbar.
 - Next:
-  - Install JS/Elixir deps (`npm install` in `assets/`, `mix deps.get`) and build assets.
   - Confirm highlight.js CSS output is loaded and markdown rendering matches Svelte output.
   - Confirm remaining LiveView UX parity items (copy buttons, selection persistence, error states).
+  - Port `/markdown-demo` page if required by source parity.
 
 ## Plan (stepwise)
 
