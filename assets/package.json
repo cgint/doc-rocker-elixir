@@ -1,0 +1,9 @@
+{
+  "name": "doc-rocker-assets",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "highlight.js": "11.*",
+    "marked": "15.*"
+  }
+}

@@ -46,10 +46,13 @@
   - Ported component CSS for LogoGfx, InputField, SendButton, DocumentationPicks, ResponseDisplay, and MarkdownDisplay.
   - Added backend scaffolding for `/api/chat` (SSE) and `/api/rock` endpoints.
   - Implemented SearchService, Perplexity, Tavily, and LLM provider connectors in Elixir.
+  - Wired LiveView submit to SearchService with status updates and scroll events.
+  - Added JS hooks for scrolling and markdown rendering (marked + highlight.js).
+  - Added assets `package.json` with marked/highlight.js dependencies.
 - Next:
-  - Implement markdown rendering + copy actions and syntax highlighting.
-  - Add LiveView streaming flow for `/api/chat` (status + final) and scroll behavior.
-  - Wire LiveView submit to SearchService (streaming updates).
+  - Install JS/Elixir deps (`npm install` in `assets/`, `mix deps.get`) and build assets.
+  - Confirm highlight.js CSS output is loaded and markdown rendering matches Svelte output.
+  - Add localStorage persistence for documentation picks.
 
 ## Plan (stepwise)
 

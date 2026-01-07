@@ -1,6 +1,8 @@
 defmodule DocRockerWeb.HomeLive do
   use DocRockerWeb, :live_view
 
+  alias DocRocker.Services.SearchService
+
   @max_characters 400
   @near_limit_threshold 0.8
 
@@ -73,16 +75,67 @@ defmodule DocRockerWeb.HomeLive do
     if error do
       {:noreply, assign(socket, error: error)}
     else
-      {:noreply,
-       assign(socket,
-         error: nil,
-         response: "",
-         citations: [],
-         raw_results: [],
-         status_message: "",
-         loading: false
-       )}
+      picked_domains = Enum.map(selected, & &1.domain)
+      parent = self()
+
+      Task.start(fn -> run_search(parent, query, picked_domains) end)
+
+      socket =
+        socket
+        |> assign(
+          error: nil,
+          response: "",
+          citations: [],
+          raw_results: [],
+          status_message: "",
+          loading: true
+        )
+
+      Process.send_after(self(), {:scroll_to, "status_message", "nearest"}, 10)
+
+      {:noreply, socket}
     end
+  end
+
+  def handle_info({:search_status, message}, socket) do
+    status_message =
+      if socket.assigns.status_message == "" do
+        message
+      else
+        socket.assigns.status_message <> "<br>" <> message
+      end
+
+    {:noreply, assign(socket, status_message: status_message)}
+  end
+
+  def handle_info({:search_result, result}, socket) do
+    combined = result.combined_search_result
+
+    socket =
+      assign(socket,
+        response: combined.answer,
+        citations: combined.citations || [],
+        raw_results: result.raw_search_results || [],
+        loading: false,
+        status_message: ""
+      )
+
+    Process.send_after(self(), {:scroll_to, "combined_result", "start"}, 10)
+
+    {:noreply, socket}
+  end
+
+  def handle_info({:search_error, error_message}, socket) do
+    {:noreply,
+     assign(socket,
+       error: error_message,
+       loading: false,
+       status_message: ""
+     )}
+  end
+
+  def handle_info({:scroll_to, id, block}, socket) do
+    {:noreply, push_event(socket, "scroll_to", %{id: id, block: block})}
   end
 
   def handle_event("toggle_pick", %{"index" => index}, socket) do
@@ -169,11 +222,21 @@ defmodule DocRockerWeb.HomeLive do
 
   defp markdown_display(assigns) do
     ~H"""
-    <div class="markdown-container">
+    <div
+      class="markdown-container"
+      phx-hook="MarkdownRenderer"
+      data-show-copy-buttons={@show_copy_buttons}
+    >
       <div class="markdown-content-wrapper">
         <%= if @show_copy_buttons do %>
           <div class="action-buttons">
-            <button class="action-button" type="button" title="Copy Markdown" aria-label="Copy Markdown">
+            <button
+              class="action-button"
+              type="button"
+              data-action="copy-markdown"
+              title="Copy Markdown"
+              aria-label="Copy Markdown"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="16"
@@ -189,7 +252,13 @@ defmodule DocRockerWeb.HomeLive do
                 <polyline points="14 2 14 8 20 8"></polyline>
               </svg>
             </button>
-            <button class="action-button" type="button" title="Copy Rich Text" aria-label="Copy Rich Text">
+            <button
+              class="action-button"
+              type="button"
+              data-action="copy-rich-text"
+              title="Copy Rich Text"
+              aria-label="Copy Rich Text"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="16"
@@ -213,5 +282,18 @@ defmodule DocRockerWeb.HomeLive do
       </div>
     </div>
     """
+  end
+
+  defp run_search(parent, query, picked_domains) do
+    send(parent, {:search_status, "Starting search engines..."})
+
+    try do
+      result = SearchService.search_documentation(query, picked_domains)
+      send(parent, {:search_status, "Search completed. Preparing results..."})
+      send(parent, {:search_result, result})
+    rescue
+      error ->
+        send(parent, {:search_error, Exception.message(error)})
+    end
   end
 end

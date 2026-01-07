@@ -19,6 +19,9 @@
 
 // Include phoenix_html to handle method=PUT/DELETE in forms and buttons.
 import "phoenix_html"
+import {marked} from "marked"
+import hljs from "highlight.js"
+import "highlight.js/styles/github.css"
 // Establish Phoenix Socket and LiveView configuration.
 import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
@@ -26,10 +29,124 @@ import {hooks as colocatedHooks} from "phoenix-colocated/doc_rocker"
 import topbar from "../vendor/topbar"
 
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
+marked.setOptions({
+  breaks: true,
+  gfm: true,
+  highlight: function(code, lang) {
+    if (lang && hljs.getLanguage(lang)) {
+      try {
+        return hljs.highlight(code, {language: lang}).value
+      } catch (error) {
+        console.error("Highlight.js error:", error)
+      }
+    }
+    try {
+      return hljs.highlightAuto(code).value
+    } catch (error) {
+      console.error("Highlight.js error:", error)
+      return code
+    }
+  },
+})
+
+function addCodeCopyButtons(markdownElement) {
+  const codeBlocks = markdownElement.querySelectorAll("pre code")
+  codeBlocks.forEach(codeBlock => {
+    const pre = codeBlock.parentNode
+    if (!pre) return
+    pre.style.position = "relative"
+
+    const existingButton = pre.querySelector(".code-copy-button")
+    if (existingButton) {
+      existingButton.remove()
+    }
+
+    const copyButton = document.createElement("button")
+    copyButton.className = "code-copy-button"
+    copyButton.title = "Copy code"
+    copyButton.innerHTML =
+      '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>'
+
+    copyButton.addEventListener("click", () => {
+      const code = codeBlock.textContent || ""
+      navigator.clipboard.writeText(code).then(() => {
+        copyButton.innerHTML =
+          '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>'
+        setTimeout(() => {
+          copyButton.innerHTML =
+            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>'
+        }, 2000)
+      })
+    })
+
+    pre.appendChild(copyButton)
+  })
+}
+
+function copyRichText(markdownElement) {
+  const range = document.createRange()
+  range.selectNodeContents(markdownElement)
+
+  const selection = window.getSelection()
+  if (!selection) return
+
+  selection.removeAllRanges()
+  selection.addRange(range)
+  document.execCommand("copy")
+  selection.removeAllRanges()
+}
+
+const Hooks = {
+  ...colocatedHooks,
+  ScrollHandler: {
+    mounted() {
+      this.handleEvent("scroll_to", ({id, block}) => {
+        const target = document.getElementById(id)
+        if (target) {
+          target.scrollIntoView({behavior: "smooth", block: block || "nearest"})
+        }
+      })
+    },
+  },
+  MarkdownRenderer: {
+    mounted() {
+      this.renderMarkdown()
+    },
+    updated() {
+      this.renderMarkdown()
+    },
+    renderMarkdown() {
+      const markdownElement = this.el.querySelector(".markdown-content")
+      if (!markdownElement) return
+
+      const markdown = markdownElement._markdownSource || markdownElement.textContent || ""
+      markdownElement._markdownSource = markdown
+      markdownElement.innerHTML = marked.parse(markdown)
+
+      const showCopyButtons = this.el.dataset.showCopyButtons === "true"
+      if (showCopyButtons) {
+        addCodeCopyButtons(markdownElement)
+        const buttons = this.el.querySelectorAll(".action-button")
+        buttons.forEach(button => {
+          const action = button.dataset.action
+          button.onclick = event => {
+            event.preventDefault()
+            if (action === "copy-markdown") {
+              navigator.clipboard.writeText(markdownElement._markdownSource || markdown)
+            }
+            if (action === "copy-rich-text") {
+              copyRichText(markdownElement)
+            }
+          }
+        })
+      }
+    },
+  },
+}
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
   params: {_csrf_token: csrfToken},
-  hooks: {...colocatedHooks},
+  hooks: Hooks,
 })
 
 // Show progress bar on live navigation and form submits
@@ -80,4 +197,3 @@ if (process.env.NODE_ENV === "development") {
     window.liveReloader = reloader
   })
 }
-
