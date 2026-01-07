@@ -18,6 +18,7 @@ defmodule DocRockerWeb.Router do
     pipe_through :browser
 
     live "/", HomeLive, :index
+    live "/markdown-demo", MarkdownDemoLive, :index
   end
 
   scope "/api", DocRockerWeb do

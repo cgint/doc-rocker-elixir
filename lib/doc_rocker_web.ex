@@ -88,6 +88,7 @@ defmodule DocRockerWeb do
       import Phoenix.HTML
       # Core UI components
       import DocRockerWeb.CoreComponents
+      import DocRockerWeb.MarkdownDisplay
 
       # Common modules used in templates
       alias Phoenix.LiveView.JS

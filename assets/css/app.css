@@ -810,3 +810,22 @@ h4 {
     height: 14px;
   }
 }
+
+.markdown-demo-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.markdown-demo-container h1 {
+  margin-bottom: 0.5rem;
+}
+
+.markdown-demo-container p {
+  margin-bottom: 2rem;
+  color: #4a5568;
+}
+
+.markdown-demo-section {
+  border-radius: 8px;
+}
