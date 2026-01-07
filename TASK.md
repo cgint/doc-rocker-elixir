@@ -27,7 +27,7 @@
 
 ## Status
 
-- Current phase: Step 1 - Source analysis (spec extraction)
+- Current phase: Step 2 - Implementation planning
 - Completed:
   - Read `elixir_phoenix_liveview_guide.md`.
   - Reviewed `doc-rocker-svelte.md` (Svelte structure and behavior notes).
@@ -36,18 +36,48 @@
   - Extracted source system analysis into `PORTING_OVERVIEW.html`, `PORTING_OVERVIEW.puml`, and `PORTING_OVERVIEW.svg`.
   - Confirmed there is no `/api/mcp` endpoint; MCP is handled via an external stdin wrapper that calls existing APIs.
   - Confirmed there is no `/api/auth` endpoint (not present in `doc-rocker-svelte.md`).
+  - Created `README.md` for the Phoenix LiveView port.
+  - Added detailed implementation plan in this document.
 - Next:
-  - Produce a detailed implementation plan after all spec gaps are resolved.
+  - Begin Phoenix project scaffold after approval.
 
 ## Plan (stepwise)
 
-1. Source analysis: extract UI states, CSS, routes, streaming behavior, and API contracts.
-2. Phoenix scaffold: create project in repo root, wire static assets and PWA files.
-3. UI parity: implement layouts/components for pixel-identical UI.
-4. Backend parity: port API endpoints and service integrations.
-5. Streaming UX: implement working-status and partial/segmented updates.
-6. Verification: parity checklist for UI, API, and UX behavior.
-7. Docker: finalize build/run config for self-hosted deployment.
+1. Source analysis: extract UI states, CSS, routes, streaming behavior, and API contracts. (Complete)
+2. Phoenix scaffold:
+   - Generate a new Phoenix app at repo root with LiveView enabled.
+   - Define app shell HTML to mirror `src/app.html` (meta tags, PWA setup).
+   - Wire static assets from `static/` into Phoenix `priv/static`.
+3. UI parity:
+   - Build LiveView for `/` with identical layout and spacing.
+   - Port styles from Svelte components into LiveView CSS (global + component-level).
+   - Implement UI state: loading, errors, status messages, results.
+4. Streaming UX:
+   - Implement SSE-style streaming via LiveView assigns and progressive updates.
+   - Maintain status message sequence (start -> search complete -> final).
+   - Preserve scroll behavior on start and finish.
+5. Backend parity:
+   - Implement `/api/chat` streaming endpoint in Phoenix controller/LiveView channel.
+   - Implement `/api/rock` JSON endpoint with User-Agent validation.
+   - Implement search pipeline modules: Perplexity, Tavily, LLM combiner.
+6. Search pipeline details:
+   - Preserve domain handling (worldwide vs restricted).
+   - Preserve combined answer formatting and warnings.
+   - Preserve error handling behavior.
+7. Markdown rendering + copy actions:
+   - Implement markdown rendering and code highlighting in LiveView templates.
+   - Provide copy-as-markdown and copy-as-rich-text actions.
+8. PWA:
+   - Serve `manifest.json` and `sw.js` unchanged.
+   - Register service worker in app shell.
+9. Docker:
+   - Add Dockerfile and docker-compose for self-hosted deployment.
+   - Ensure env variable mapping and secrets are documented.
+10. Verification:
+   - UI parity checklist (layout, spacing, colors, animations, responsive).
+   - API parity checklist (chat SSE, rock validation).
+   - PWA check (manifest, SW cache, offline page).
+   - Streaming UX review (status message cadence and content).
 
 ## Implementation Inputs (answered)
 
