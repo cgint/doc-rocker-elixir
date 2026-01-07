@@ -1,8 +1,18 @@
 ## Project Rules (User-Provided)
 
 - Re-implement Doc-Rocker/Dock Rocker in Elixir Phoenix LiveView.
+- Product name confirmed: Doc-Rocker (documentation search app).
 - UI must match the existing Svelte UI exactly.
 - Improve streaming response UX using LiveView capabilities (more professional experience).
+- Create a new Phoenix project in the repo root.
+- Reuse original assets from `static` and UI/CSS/behavior from `doc-rocker-svelte.md`.
+- Full feature parity, including all API endpoints and API users.
+- No new auth flows; keep simple/none as current.
+- Streaming UX: show working status and partial/segmented updates (high-level, not too detailed).
+- Prefer native LiveView defaults; minimize tech changes to preserve UX/UI.
+- Target hosting: self-hosted via Docker.
+- Preserve PWA behavior (manifest + service worker).
+- Use the same external providers and API keys (Perplexity/Tavily/Combiner).
 - Maintain `TASK.md` as the migration status file, including open questions and migration learnings.
 - Capture general Elixir/tech-stack learnings in a separate markdown file.
 - Commit to git at milestones (frequent, especially during bootstrap) using concise one-line commit messages.
