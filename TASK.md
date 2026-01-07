@@ -55,6 +55,7 @@
   - Installed JS and Elixir deps and validated asset build.
   - Adjusted asset bundling for marked/highlight and CommonJS topbar.
   - Ported `/markdown-demo` LiveView page.
+  - Updated `mix assets.setup` to install JS dependencies and documented routes/dev setup in `README.md`.
 - Next:
   - Confirm highlight.js CSS output is loaded and markdown rendering matches Svelte output.
   - Confirm remaining LiveView UX parity items (copy buttons, selection persistence, error states).

@@ -67,7 +67,11 @@ defmodule DocRocker.MixProject do
   defp aliases do
     [
       setup: ["deps.get", "assets.setup", "assets.build"],
-      "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
+      "assets.setup": [
+        "cmd --cd assets npm install",
+        "tailwind.install --if-missing",
+        "esbuild.install --if-missing"
+      ],
       "assets.build": ["tailwind doc_rocker", "esbuild doc_rocker"],
       "assets.deploy": [
         "tailwind doc_rocker --minify",

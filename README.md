@@ -45,6 +45,18 @@ Client calls `POST /api/chat` and expects `text/event-stream` with messages:
 
 No `/api/mcp` endpoint exists in-app. MCP is handled externally by an stdin wrapper that calls the normal API.
 
+## Routes
+
+- `/` — main Doc-Rocker UI.
+- `/markdown-demo` — MarkdownDisplay demo page (parity with Svelte source).
+
+## Development
+
+```
+mix setup
+mix phx.server
+```
+
 ## Search Pipeline
 
 - Perplexity + Tavily searches run in parallel.
