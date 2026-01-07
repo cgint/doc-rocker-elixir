@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Doc-Rocker Porting Overview</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f8fafc;
+      --ink: #0f172a;
+      --muted: #475569;
+      --line: #e2e8f0;
+      --accent: #4361ee;
+      --accent-2: #3f37c9;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.5;
+    }
+
+    header {
+      padding: 2rem 2rem 1rem;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(135deg, #eef2ff, #f8fafc);
+    }
+
+    header h1 {
+      margin: 0 0 0.5rem;
+      font-size: 1.75rem;
+    }
+
+    header p {
+      margin: 0;
+      color: var(--muted);
+      max-width: 900px;
+    }
+
+    main {
+      padding: 1.5rem 2rem 3rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    section {
+      margin: 2rem 0;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--line);
+    }
+
+    section h2 {
+      margin: 0 0 0.75rem;
+      font-size: 1.35rem;
+      color: var(--accent-2);
+    }
+
+    h3 {
+      margin: 1rem 0 0.5rem;
+      font-size: 1.05rem;
+    }
+
+    ul {
+      margin: 0.25rem 0 0.75rem 1.25rem;
+    }
+
+    li {
+      margin: 0.25rem 0;
+    }
+
+    code, pre {
+      font-family: Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: 0.9rem;
+    }
+
+    pre {
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.75rem;
+      overflow-x: auto;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 0.1rem 0.6rem;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #ffffff;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .diagram {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 1rem;
+      background: #ffffff;
+    }
+
+    .diagram img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .note {
+      background: #ffffff;
+      border-left: 4px solid var(--accent);
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Doc-Rocker Porting Overview</h1>
+    <p>
+      This document captures the source system behavior, UI details, API contracts, and
+      integration points for the SvelteKit implementation that will be re-implemented in Phoenix LiveView.
+      The goal is strict UI parity with improved streaming UX while keeping behavior unchanged.
+    </p>
+  </header>
+
+  <main>
+    <section id="context">
+      <h2>Context and Scope</h2>
+      <ul>
+        <li>Product: Doc-Rocker (documentation search assistant).</li>
+        <li>Target: Phoenix LiveView app with pixel-identical UI and full feature parity.</li>
+        <li>Source of truth: <code>doc-rocker-svelte.md</code> for UI, CSS, and behavior.</li>
+        <li>Assets: use <code>static/</code> as-is (PWA manifest, SW, icons, logo).</li>
+        <li>Hosting: self-hosted via Docker.</li>
+        <li>PWA: keep manifest + service worker behavior.</li>
+      </ul>
+    </section>
+
+    <section id="diagram">
+      <h2>System Map</h2>
+      <div class="diagram">
+        <img src="PORTING_OVERVIEW.svg" alt="Doc-Rocker porting diagram">
+      </div>
+    </section>
+
+    <section id="ui">
+      <h2>Main UI - Structure and Components</h2>
+      <h3>Page Layout</h3>
+      <ul>
+        <li>Single page at <code>/</code> with a centered layout and max width ~1200px.</li>
+        <li>Components: <code>LogoGfx</code>, <code>InputField</code>, <code>SendButton</code>, <code>DocumentationPicks</code>, <code>ResponseDisplay</code>.</li>
+        <li>Streaming status area appears during loading with fade in/out animation.</li>
+      </ul>
+
+      <h3>Logo</h3>
+      <ul>
+        <li>Uses <code>/logo.webp</code> with a gradient border and rounded square framing.</li>
+        <li>When loading: "rock on" animation (rotation + scale).</li>
+      </ul>
+
+      <h3>Input Field</h3>
+      <ul>
+        <li>Textarea with max 400 characters. Shows character count.</li>
+        <li>Near-limit warning at 80 percent of limit.</li>
+        <li>Over-limit styles and warning message.</li>
+        <li>Submit via Meta+Enter or Send button.</li>
+      </ul>
+
+      <h3>Send Button</h3>
+      <ul>
+        <li>Gradient button with send icon; spinner while loading.</li>
+        <li>Disabled when loading, empty query, no picks, or over character limit.</li>
+      </ul>
+
+      <h3>Documentation Picks</h3>
+      <ul>
+        <li>Predefined picks (grid of buttons) and optional custom domain input.</li>
+        <li>Only one pick active at a time (unless worldwide search mode).</li>
+        <li>Custom domain validation with regex and inline error.</li>
+        <li>Persists selection in <code>localStorage</code> key <code>selectedDocumentationPicks</code>.</li>
+      </ul>
+
+      <h3>Response Display</h3>
+      <ul>
+        <li>Shows combined answer, citations, and raw results with citations.</li>
+        <li>Error block with icon and red styling when request fails.</li>
+      </ul>
+
+      <h3>Markdown Display</h3>
+      <ul>
+        <li>Uses <code>marked</code> + <code>highlight.js</code> (GitHub theme).</li>
+        <li>Copy buttons for code blocks, plus copy-as-markdown and copy-as-rich-text.</li>
+      </ul>
+    </section>
+
+    <section id="behavior">
+      <h2>UI Behavior and Validation</h2>
+      <ul>
+        <li>Query required; errors for empty query or over 400 chars.</li>
+        <li>At least one pick required.</li>
+        <li>Only one pick allowed while in beta (unless worldwide <code>*</code> is selected).</li>
+        <li>While loading: clear previous response, show animated status message area.</li>
+        <li>Auto-scroll to status area on start and to combined result on completion.</li>
+      </ul>
+    </section>
+
+    <section id="streaming">
+      <h2>Streaming Flow (SSE)</h2>
+      <ul>
+        <li>Client calls <code>POST /api/chat</code> and expects <code>text/event-stream</code>.</li>
+        <li>Stream messages are lines: <code>data: {"type":"status", "message":"..."}</code>.</li>
+        <li>Status lines are appended with line breaks; final includes combined response.</li>
+      </ul>
+      <pre><code>data: {"type":"status","message":"Starting search engines..."}
+
+data: {"type":"status","message":"Search completed. Preparing results..."}
+
+data: {"type":"final","result": {"combined_search_result": {...}, "raw_search_results": [...]}}</code></pre>
+      <div class="note">
+        Current stream only sends status updates and a final payload. It does not stream partial model tokens.
+      </div>
+    </section>
+
+    <section id="api">
+      <h2>API Endpoints</h2>
+      <h3>POST /api/chat (SSE)</h3>
+      <ul>
+        <li>Request body: <code>{"query": string, "documentationPicks": DocumentationPick[]}</code></li>
+        <li>Response: SSE stream with status and final combined result.</li>
+      </ul>
+
+      <h3>POST /api/rock (JSON)</h3>
+      <ul>
+        <li>Validates User-Agent: <code>Web-Search-Doc-Rocker-MCP/0.1.0</code>.</li>
+        <li>Request body: <code>{"query": string, "domainRestriction": string}</code></li>
+        <li>Response: JSON with timestamp, request echo, and search result.</li>
+      </ul>
+
+      <h3>POST /api/mcp (JSON-RPC 2.0)</h3>
+      <ul>
+        <li>Described in README with MCP protocol 2024-11-05.</li>
+        <li>Tools: <code>search_documentation</code> and <code>list_documentation_sources</code>.</li>
+        <li>Implementation code not present in <code>doc-rocker-svelte.md</code>.</li>
+      </ul>
+
+      <h3>Other</h3>
+      <ul>
+        <li>Client helper exists for <code>/api/auth</code> using bearer token, but server handler not in source extract.</li>
+      </ul>
+    </section>
+
+    <section id="services">
+      <h2>Search Pipeline and Services</h2>
+      <ul>
+        <li><code>SearchService</code> runs Perplexity + Tavily in parallel, then combines via LLM.</li>
+        <li>Perplexity query includes <code>site:domain</code> terms; domain filter only if not worldwide.</li>
+        <li>Tavily request uses <code>include_answer: "advanced"</code> with optional domain filter.</li>
+        <li>Combined answer format includes an AI Answer header, warning, and model info.</li>
+      </ul>
+      <pre><code>Combined answer format:
+## AI Answer
+&lt;answer&gt;
+
+---
+
+_**Please verify the information before using it.** ..._
+
+_AI-Model: &lt;model&gt;_</code></pre>
+    </section>
+
+    <section id="data">
+      <h2>Key Data Types</h2>
+      <pre><code>DocumentationPick: { name, domain, selected? }
+ChatRequest: { query, documentationPicks }
+CombinedChatResponse: { combined_search_result, raw_search_results }
+SingleChatResponse: { answer, citations? }</code></pre>
+    </section>
+
+    <section id="config">
+      <h2>Environment and Config</h2>
+      <ul>
+        <li>Perplexity: <code>VITE_PERPLEXITY_API_KEY</code>, <code>VITE_PERPLEXITY_MODEL</code></li>
+        <li>Tavily: <code>VITE_TAVILY_API_KEY</code></li>
+        <li>Combiner: <code>VITE_COMBINER_PROVIDER</code>, <code>VITE_COMBINER_PROVIDER_MODEL</code>, <code>VITE_COMBINER_API_KEY</code></li>
+      </ul>
+    </section>
+
+    <section id="pwa">
+      <h2>PWA and SEO</h2>
+      <ul>
+        <li>PWA meta tags and theme color in app shell.</li>
+        <li>Manifest: <code>static/manifest.json</code>.</li>
+        <li>Service worker: <code>static/sw.js</code> with cache-first for static assets and offline fallback page.</li>
+      </ul>
+    </section>
+
+    <section id="assets">
+      <h2>Static Assets</h2>
+      <ul>
+        <li><code>static/logo.webp</code></li>
+        <li><code>static/favicon.png</code></li>
+        <li><code>static/icon-192x192.png</code></li>
+        <li><code>static/icon-512x512.png</code></li>
+        <li><code>static/manifest.json</code></li>
+        <li><code>static/sw.js</code></li>
+      </ul>
+    </section>
+
+    <section id="tests">
+      <h2>Tests in Source</h2>
+      <ul>
+        <li><code>SearchService.test.ts</code> covers search combination behavior.</li>
+        <li><code>/api/rock</code> tests validate User-Agent, input validation, and response shape.</li>
+      </ul>
+    </section>
+
+    <section id="gaps">
+      <h2>Known Gaps or Clarifications Needed</h2>
+      <ul>
+        <li><code>/api/mcp</code> implementation not included in source extract.</li>
+        <li><code>/api/auth</code> server handler not included in source extract.</li>
+      </ul>
+      <div class="note">
+        These gaps must be resolved before final porting to guarantee full API parity.
+      </div>
+    </section>
+  </main>
+</body>
+</html>

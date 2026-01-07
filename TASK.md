@@ -33,10 +33,11 @@
   - Reviewed `doc-rocker-svelte.md` (Svelte structure and behavior notes).
   - Consulted doc expert agent for LiveView UI-heavy component patterns.
   - Static asset folder from original project added to repo (`static`).
+  - Extracted source system analysis into `PORTING_OVERVIEW.html`, `PORTING_OVERVIEW.puml`, and `PORTING_OVERVIEW.svg`.
 - Next:
-  - Extract UI, CSS, component, and streaming behavior spec from `doc-rocker-svelte.md`.
-  - Inventory assets in `static` and map them to the LiveView asset pipeline.
-  - Produce a detailed implementation plan after spec extraction.
+  - Confirm missing MCP handler details (not in source extract).
+  - Confirm `/api/auth` server behavior if required.
+  - Produce a detailed implementation plan after all spec gaps are resolved.
 
 ## Plan (stepwise)
 
@@ -79,3 +80,4 @@
 
 - Original project static assets are now available in `static`.
 - `doc-rocker-svelte.md` is the authoritative reference for UI/CSS/behavior.
+- Source system analysis artifacts are available in `PORTING_OVERVIEW.html` and `PORTING_OVERVIEW.puml` (diagram in `PORTING_OVERVIEW.svg`).

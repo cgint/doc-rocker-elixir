@@ -1,0 +1,84 @@
+@startuml
+
+' Doc-Rocker source system overview for porting to LiveView
+
+title Doc-Rocker Source System (SvelteKit) - Porting Overview
+
+skinparam componentStyle rectangle
+skinparam shadowing false
+
+actor User
+
+rectangle "Browser UI" as UI {
+  component "Main Page /" as Page
+  component "ResponseDisplay" as Response
+  component "MarkdownDisplay" as Markdown
+  database "localStorage\nselectedDocumentationPicks" as Storage
+}
+
+rectangle "Svelte Server" as Server {
+  component "/api/chat\nSSE" as Chat
+  component "/api/rock\nJSON" as Rock
+  component "/api/mcp\nJSON-RPC" as MCP
+  component "SearchService" as Search
+  component "PerplexitySearchEngine" as PerplexityEngine
+  component "TavilySearchEngine" as TavilyEngine
+  component "LlmConnectService\nCombiner" as Combiner
+}
+
+cloud "Perplexity API" as Perplexity
+cloud "Tavily API" as Tavily
+cloud "LLM Provider\n(OpenAI, Anthropic, Gemini, Mistral, OpenRouter)" as LLM
+
+rectangle "PWA Assets" as PWA {
+  component "manifest.json" as Manifest
+  component "sw.js" as SW
+  component "icons + logo" as Icons
+}
+
+User --> UI : Query + pick
+UI --> Storage : Save or load picks
+UI --> Chat : POST /api/chat\nSSE
+Chat --> Search : searchDocumentation
+Search --> PerplexityEngine : search(perplexityQuery)
+Search --> TavilyEngine : search(query, domains)
+Search --> Combiner : combine results
+PerplexityEngine --> Perplexity
+TavilyEngine --> Tavily
+Combiner --> LLM
+Chat --> UI : status + final\nSSE events
+
+UI --> Rock : POST /api/rock\nUser-Agent required
+Rock --> Search
+
+UI --> MCP : JSON-RPC tools/call\nlist + search
+
+PWA .. UI : PWA meta + SW registration
+Manifest .. UI
+SW .. UI
+Icons .. UI
+
+note right of Chat
+SSE messages:
+- status: "Starting search engines..."
+- status: "Search completed. Preparing results..."
+- final: CombinedChatResponse
+end note
+
+note right of Page
+Validation rules:
+- query required
+- max 400 chars
+- one pick unless worldwide
+end note
+
+note bottom of Rock
+Requires User-Agent:
+Web-Search-Doc-Rocker-MCP/0.1.0
+end note
+
+note bottom of MCP
+Implementation code not in source extract
+end note
+
+@enduml
