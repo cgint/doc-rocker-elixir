@@ -39,8 +39,11 @@
   - Created `README.md` for the Phoenix LiveView port.
   - Added detailed implementation plan in this document.
   - Generated Phoenix scaffold in repo root (app: `doc_rocker`, module: `DocRocker`; no Ecto/mailer/dashboard; deps not installed).
+  - Ported app shell metadata, PWA tags, and service worker registration into Phoenix root layout.
+  - Replaced base CSS with source `app.html` styles for pixel parity.
+  - Copied PWA/static assets from `static/` into `priv/static/`.
 - Next:
-  - Port app shell + PWA meta tags and copy `static/` assets into `priv/static`.
+  - Build LiveView UI and port component CSS (InputField, DocumentationPicks, ResponseDisplay, etc.).
 
 ## Plan (stepwise)
 

@@ -2,34 +2,82 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <link rel="icon" href={~p"/favicon.png"} />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
-    <.live_title default="DocRocker" suffix=" · Phoenix Framework">
-      {assigns[:page_title]}
-    </.live_title>
+
+    <meta name="theme-color" content="#4361ee" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Doc-Rocker" />
+
+    <link rel="manifest" href={~p"/manifest.json"} />
+
+    <link rel="apple-touch-icon" href={~p"/icon-192x192.png"} />
+    <link rel="apple-touch-icon" sizes="192x192" href={~p"/icon-192x192.png"} />
+    <link rel="apple-touch-icon" sizes="512x512" href={~p"/icon-512x512.png"} />
+
+    <title>Doc-Rocker - AI-Powered Documentation Assistant</title>
+    <meta
+      name="description"
+      content="Get instant answers about documentation with AI. Ask questions about LangChain, LlamaIndex, Google APIs and more. This is how to make docs rock!"
+    />
+    <meta
+      name="keywords"
+      content="documentation, AI assistant, chatbot, LangChain, LlamaIndex, Google API, developer tools, code documentation"
+    />
+
+    <meta property="og:title" content="Doc-Rocker - AI-Powered Documentation Assistant" />
+    <meta
+      property="og:description"
+      content="Get instant answers about documentation with AI. Ask questions about LangChain, LlamaIndex, Google APIs and more. This is how to make docs rock!"
+    />
+    <meta property="og:image" content={~p"/favicon.png"} />
+    <meta property="og:url" content="https://doc-rocker.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Doc-Rocker" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Doc-Rocker - AI-Powered Documentation Assistant" />
+    <meta
+      name="twitter:description"
+      content="Get instant answers about documentation with AI. Ask questions about LangChain, LlamaIndex, Google APIs and more."
+    />
+    <meta name="twitter:image" content={~p"/favicon.png"} />
+
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="Doc-Rocker" />
+
     <link phx-track-static rel="stylesheet" href={~p"/assets/css/app.css"} />
     <script defer phx-track-static type="text/javascript" src={~p"/assets/js/app.js"}>
-    </script>
-    <script>
-      (() => {
-        const setTheme = (theme) => {
-          if (theme === "system") {
-            localStorage.removeItem("phx:theme");
-            document.documentElement.removeAttribute("data-theme");
-          } else {
-            localStorage.setItem("phx:theme", theme);
-            document.documentElement.setAttribute("data-theme", theme);
-          }
-        };
-        if (!document.documentElement.hasAttribute("data-theme")) {
-          setTheme(localStorage.getItem("phx:theme") || "system");
-        }
-        window.addEventListener("storage", (e) => e.key === "phx:theme" && setTheme(e.newValue || "system"));
-        window.addEventListener("phx:set-theme", ({ detail: { theme } }) => setTheme(theme));
-      })();
     </script>
   </head>
   <body>
     {@inner_content}
+
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("/sw.js")
+            .then((registration) => {
+              console.log("[SW] Registration successful with scope: ", registration.scope);
+              registration.addEventListener("updatefound", () => {
+                const newWorker = registration.installing;
+                newWorker.addEventListener("statechange", () => {
+                  if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+                    console.log("[SW] New content is available; please refresh.");
+                  }
+                });
+              });
+            })
+            .catch((error) => {
+              console.log("[SW] Registration failed: ", error);
+            });
+        });
+      }
+    </script>
   </body>
 </html>

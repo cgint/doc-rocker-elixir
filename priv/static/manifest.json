@@ -1,0 +1,34 @@
+{
+  "name": "Doc-Rocker - AI-Powered Documentation Assistant",
+  "short_name": "Doc-Rocker",
+  "description": "Get instant answers about documentation with AI. Ask questions about LangChain, LlamaIndex, Google APIs and more. This is how to make docs rock!",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#4361ee",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["productivity", "developer", "documentation", "ai"],
+  "lang": "en",
+  "dir": "ltr"
+} 

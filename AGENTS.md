@@ -19,6 +19,7 @@
 - Commit to git at milestones (frequent, especially during bootstrap) using concise one-line commit messages.
 - Persist all user requirements and guidelines in `AGENTS.md` when provided.
 - Do not ask whether to persist important information; decide and persist autonomously.
+- Do not repeatedly ask for confirmation once instructions are recorded; follow the agreed rules.
 
 ---
 - DO NOT CHANGE THE PART - STARTING FROM HERE -
