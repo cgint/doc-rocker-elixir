@@ -1,3 +1,13 @@
+## Project Rules (User-Provided)
+
+- Re-implement Doc-Rocker/Dock Rocker in Elixir Phoenix LiveView.
+- UI must match the existing Svelte UI exactly.
+- Improve streaming response UX using LiveView capabilities (more professional experience).
+- Maintain `TASK.md` as the migration status file, including open questions and migration learnings.
+- Capture general Elixir/tech-stack learnings in a separate markdown file.
+- Commit to git at milestones (frequent, especially during bootstrap) using concise one-line commit messages.
+- Persist all user requirements and guidelines in `AGENTS.md` when provided.
+
 ---
 - DO NOT CHANGE THE PART - STARTING FROM HERE -
 ---

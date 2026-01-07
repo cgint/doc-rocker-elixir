@@ -1,6 +1,7 @@
 # Doc-Rocker -> Phoenix LiveView Migration
 
 ## Initial Request
+
 - Re-implement the Doc-Rocker (SvelteKit) app as an Elixir Phoenix LiveView app.
 - UI must look exactly the same as the current Svelte version.
 - Improve streaming response UX using LiveView capabilities.
@@ -8,10 +9,12 @@
 - Capture general Elixir/tech-stack learnings in a separate file.
 
 ## Goal
+
 - Feature-parity LiveView app with identical UI and improved streaming UX.
 - Clear migration status and decisions tracked in this file.
 
 ## Status
+
 - Current phase: Discovery
 - Completed:
   - Read `elixir_phoenix_liveview_guide.md`.
@@ -22,6 +25,7 @@
   - Define target Phoenix project structure and assets.
 
 ## Open Questions (need answers before implementation)
+
 1. Confirm the correct product name and scope: is this "Doc-Rocker" (documentation search app) or "Dock Rocker" (different UI)?
 2. Where should the Phoenix LiveView app live: new Phoenix project or integrate into an existing repo?
 3. Are there source assets we must reuse for exact UI parity (logos, icons, fonts, images, CSS)? If yes, where are they?
@@ -34,7 +38,9 @@
 10. Are API keys and providers the same (Perplexity/Tavily/Combiner), or should we change integrations?
 
 ## Decisions
+
 - None yet.
 
 ## Migration Learnings (project-specific)
+
 - None yet.
