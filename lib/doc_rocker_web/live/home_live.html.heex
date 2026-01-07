@@ -1,4 +1,4 @@
-<main class="container" phx-hook="ScrollHandler">
+<main id="home-root" class="container" phx-hook="ScrollHandler">
   <div class="logo-container">
     <img
       src={~p"/logo.webp"}
@@ -9,9 +9,10 @@
 
   <div class="chat-interface">
     <div class="input-area">
-      <.form for={%{}} as="chat" phx-change="validate" phx-submit="submit">
+      <.form for={%{}} as={:chat} phx-change="validate" phx-submit="submit">
         <div class="input-container">
           <textarea
+            id="query-input"
             name="query"
             placeholder="Ask a question about documented knowledge..."
             rows="3"
@@ -24,14 +25,12 @@
             phx-hook="InputField"
           ><%= @query %></textarea>
 
-          <span
-            class={[
-              "character-count",
-              @query_too_long && "over-limit",
-              @query_near_limit && !@query_too_long && "near-limit"
-            ]}
-          >
-            <%= @character_count %>/400
+          <span class={[
+            "character-count",
+            @query_too_long && "over-limit",
+            @query_near_limit && !@query_too_long && "near-limit"
+          ]}>
+            {@character_count}/400
           </span>
 
           <%= if @query_too_long do %>
@@ -73,14 +72,16 @@
       </.form>
     </div>
 
-    <div class="documentation-picks" phx-hook="DocumentationPicks">
+    <div id="documentation-picks" class="documentation-picks" phx-hook="DocumentationPicks">
       <div class="header">
         <h2>Predefined Picks <span class="beta-tag">beta</span></h2>
         <button
           class="custom-toggle-button"
           type="button"
           phx-click="toggle_custom_input"
-          aria-label={if @show_custom_input, do: "Hide custom domain input", else: "Add custom domain"}
+          aria-label={
+            if @show_custom_input, do: "Hide custom domain input", else: "Add custom domain"
+          }
         >
           <%= if @show_custom_input do %>
             &#x2715;
@@ -91,7 +92,11 @@
       </div>
 
       <%= if @show_custom_input do %>
-        <form class="custom-domain-input" phx-submit="add_custom_domain" phx-change="custom_domain_change">
+        <form
+          class="custom-domain-input"
+          phx-submit="add_custom_domain"
+          phx-change="custom_domain_change"
+        >
           <div class="input-group">
             <input
               type="text"
@@ -102,7 +107,7 @@
             <button type="submit">Add</button>
           </div>
           <%= if @custom_domain_error != "" do %>
-            <div class="error-message"><%= @custom_domain_error %></div>
+            <div class="error-message">{@custom_domain_error}</div>
           <% end %>
         </form>
       <% end %>
@@ -115,7 +120,7 @@
             phx-click="toggle_pick"
             phx-value-index={index}
           >
-            <%= pick.name %>
+            {pick.name}
           </button>
         <% end %>
       </div>
@@ -123,7 +128,7 @@
 
     <%= if @loading do %>
       <div id="status_message" class="status-message">
-        <%= Phoenix.HTML.raw(@status_message) %>
+        {Phoenix.HTML.raw(@status_message)}
       </div>
     <% end %>
 
@@ -146,13 +151,17 @@
             <line x1="12" y1="8" x2="12" y2="12"></line>
             <line x1="12" y1="16" x2="12.01" y2="16"></line>
           </svg>
-          <p><%= @error %></p>
+          <p>{@error}</p>
         </div>
       <% else %>
         <%= if @response != "" do %>
           <div id="combined_result" class="response">
             <div class="content-wrapper">
-              <.markdown_display markdown={@response} show_copy_buttons={true} />
+              <.markdown_display
+                id="combined-markdown"
+                markdown={@response}
+                show_copy_buttons={true}
+              />
             </div>
 
             <%= if @citations != [] do %>
@@ -162,7 +171,7 @@
                   <%= for citation <- @citations do %>
                     <li>
                       <a href={citation} target="_blank" rel="noopener noreferrer">
-                        <%= citation %>
+                        {citation}
                       </a>
                     </li>
                   <% end %>
@@ -174,10 +183,14 @@
           <%= if @raw_results != [] do %>
             <div class="raw-results response">
               <h2>Individual Results the AI Answer is based on</h2>
-              <%= for {result, _index} <- Enum.with_index(@raw_results) do %>
+              <%= for {result, index} <- Enum.with_index(@raw_results) do %>
                 <div class="raw-result response">
                   <div class="content-wrapper">
-                    <.markdown_display markdown={result.answer} show_copy_buttons={true} />
+                    <.markdown_display
+                      id={"raw-markdown-#{index}"}
+                      markdown={result.answer}
+                      show_copy_buttons={true}
+                    />
                   </div>
 
                   <%= if Map.get(result, :citations, []) != [] do %>
@@ -187,7 +200,7 @@
                         <%= for citation <- result.citations do %>
                           <li>
                             <a href={citation} target="_blank" rel="noopener noreferrer">
-                              <%= citation %>
+                              {citation}
                             </a>
                           </li>
                         <% end %>

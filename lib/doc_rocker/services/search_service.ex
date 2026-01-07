@@ -53,11 +53,16 @@ defmodule DocRocker.Services.SearchService do
 
         llm_answer_cleaned = String.trim(llm_response.answer)
 
-        "## AI Answer\n" <> llm_answer_cleaned <> "\n\n---\n\n" <> warning_string <> "\n\n" <>
+        "## AI Answer\n" <>
+          llm_answer_cleaned <>
+          "\n\n---\n\n" <>
+          warning_string <>
+          "\n\n" <>
           model_info_string
       rescue
         error ->
           Logger.error("Failed to get combined answer: #{Exception.message(error)}")
+
           "Error retrieving combined answer. Here is the raw answer from the search engines: " <>
             combined_answer
       end
@@ -88,6 +93,7 @@ defmodule DocRocker.Services.SearchService do
 
       {:error, error} ->
         Logger.error("#{label} search error: #{format_error(error)}")
+
         %{
           answer: "**#{label} Search Error:** #{format_error(error)}",
           citations: []

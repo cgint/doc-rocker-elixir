@@ -58,23 +58,23 @@ defmodule DocRockerWeb.HomeLive do
       query = socket.assigns.query
       selected = selected_picks(socket.assigns.picks)
 
-    error =
-      cond do
-        String.trim(query) == "" ->
-          "Please enter a query"
+      error =
+        cond do
+          String.trim(query) == "" ->
+            "Please enter a query"
 
-        String.length(query) > @max_characters ->
-          "Query is too long. Tavily search requires 400 characters or less."
+          String.length(query) > @max_characters ->
+            "Query is too long. Tavily search requires 400 characters or less."
 
-        selected == [] ->
-          "Please select at least one documentation source"
+          selected == [] ->
+            "Please select at least one documentation source"
 
-        not has_worldwide?(selected) and length(selected) > 1 ->
-          "Currently limited to 1 documentation source while in beta. This limit will be increased over time."
+          not has_worldwide?(selected) and length(selected) > 1 ->
+            "Currently limited to 1 documentation source while in beta. This limit will be increased over time."
 
-        true ->
-          nil
-      end
+          true ->
+            nil
+        end
 
       if error do
         {:noreply, assign(socket, error: error)}
@@ -100,47 +100,6 @@ defmodule DocRockerWeb.HomeLive do
         {:noreply, socket}
       end
     end
-  end
-
-  def handle_info({:search_status, message}, socket) do
-    status_message =
-      if socket.assigns.status_message == "" do
-        message
-      else
-        socket.assigns.status_message <> "<br>" <> message
-      end
-
-    {:noreply, assign(socket, status_message: status_message)}
-  end
-
-  def handle_info({:search_result, result}, socket) do
-    combined = result.combined_search_result
-
-    socket =
-      assign(socket,
-        response: combined.answer,
-        citations: combined.citations || [],
-        raw_results: result.raw_search_results || [],
-        loading: false,
-        status_message: ""
-      )
-
-    Process.send_after(self(), {:scroll_to, "combined_result", "start"}, 10)
-
-    {:noreply, socket}
-  end
-
-  def handle_info({:search_error, error_message}, socket) do
-    {:noreply,
-     assign(socket,
-       error: error_message,
-       loading: false,
-       status_message: ""
-     )}
-  end
-
-  def handle_info({:scroll_to, id, block}, socket) do
-    {:noreply, push_event(socket, "scroll_to", %{id: id, block: block})}
   end
 
   def handle_event("toggle_pick", %{"index" => index}, socket) do
@@ -254,6 +213,47 @@ defmodule DocRockerWeb.HomeLive do
          picks_initialized: true
        )}
     end
+  end
+
+  def handle_info({:search_status, message}, socket) do
+    status_message =
+      if socket.assigns.status_message == "" do
+        message
+      else
+        socket.assigns.status_message <> "<br>" <> message
+      end
+
+    {:noreply, assign(socket, status_message: status_message)}
+  end
+
+  def handle_info({:search_result, result}, socket) do
+    combined = result.combined_search_result
+
+    socket =
+      assign(socket,
+        response: combined.answer,
+        citations: combined.citations || [],
+        raw_results: result.raw_search_results || [],
+        loading: false,
+        status_message: ""
+      )
+
+    Process.send_after(self(), {:scroll_to, "combined_result", "start"}, 10)
+
+    {:noreply, socket}
+  end
+
+  def handle_info({:search_error, error_message}, socket) do
+    {:noreply,
+     assign(socket,
+       error: error_message,
+       loading: false,
+       status_message: ""
+     )}
+  end
+
+  def handle_info({:scroll_to, id, block}, socket) do
+    {:noreply, push_event(socket, "scroll_to", %{id: id, block: block})}
   end
 
   defp query_metrics(query) do

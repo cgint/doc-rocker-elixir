@@ -60,6 +60,7 @@
   - Verified highlight.js CSS is bundled into `priv/static/assets/js/app.css`.
   - Added Dockerfile, docker-compose, and .dockerignore for self-hosted deployment.
   - Documented Docker usage in `README.md`.
+  - Updated `.gitignore` to exclude digested static assets produced by `mix assets.deploy`.
 - Next:
   - Confirm remaining LiveView UX parity items (copy buttons, selection persistence, error states).
   - Remove Tailwind/daisyUI from build if they introduce unwanted side effects.

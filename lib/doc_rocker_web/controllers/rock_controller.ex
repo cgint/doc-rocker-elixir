@@ -74,7 +74,7 @@ defmodule DocRockerWeb.RockController do
       end
     end
   rescue
-    %Jason.DecodeError{} ->
+    _error in [Plug.Parsers.ParseError, Jason.DecodeError] ->
       conn
       |> put_status(:bad_request)
       |> json(%{error: "Invalid JSON in request body"})

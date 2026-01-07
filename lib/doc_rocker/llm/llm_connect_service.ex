@@ -29,6 +29,7 @@ defmodule DocRocker.LlmConnectService do
     rescue
       error ->
         Logger.error("Error in chat endpoint: #{Exception.message(error)}")
+
         raise "An error occurred while calling the LLM for the final response. #{Exception.message(error)}"
     end
   end
@@ -164,7 +165,9 @@ defmodule DocRocker.LlmConnectService do
           raise "Gemini API error: #{Jason.encode!(data["error"])}"
         end
 
-        answer = get_in(data, ["candidates", Access.at(0), "content", "parts", Access.at(0), "text"])
+        answer =
+          get_in(data, ["candidates", Access.at(0), "content", "parts", Access.at(0), "text"])
+
         usage = Map.get(data, "usageMetadata", %{})
 
         %{
@@ -181,6 +184,7 @@ defmodule DocRocker.LlmConnectService do
 
       {:error, {status, body}} ->
         error_text = format_error_body(body)
+
         raise "Gemini API error: #{Plug.Conn.Status.reason_phrase(status)} (#{status}) - resData: #{error_text}"
 
       {:error, exception} ->

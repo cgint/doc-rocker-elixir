@@ -2,6 +2,9 @@
   "name": "doc-rocker-assets",
   "private": true,
   "type": "module",
+  "scripts": {
+    "build": "cd .. && mix assets.deploy"
+  },
   "dependencies": {
     "highlight.js": "11.*",
     "marked": "15.*"

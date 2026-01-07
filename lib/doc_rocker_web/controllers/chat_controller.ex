@@ -36,7 +36,12 @@ defmodule DocRockerWeb.ChatController do
         try do
           conn = send_stream_message(conn, "status", %{message: "Starting search engines..."})
           result = SearchService.search_documentation(query, picked_domains)
-          conn = send_stream_message(conn, "status", %{message: "Search completed. Preparing results..."})
+
+          conn =
+            send_stream_message(conn, "status", %{
+              message: "Search completed. Preparing results..."
+            })
+
           send_stream_message(conn, "final", %{result: result})
         rescue
           error ->
@@ -62,7 +67,9 @@ defmodule DocRockerWeb.ChatController do
     message = "data: " <> Jason.encode!(Map.put(data, :type, type)) <> "\n\n"
 
     case chunk(conn, message) do
-      {:ok, conn} -> conn
+      {:ok, conn} ->
+        conn
+
       {:error, reason} ->
         Logger.warning("Error writing to stream: #{inspect(reason)}")
         conn

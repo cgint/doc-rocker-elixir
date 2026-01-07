@@ -2,8 +2,14 @@ defmodule DocRockerWeb.MarkdownDisplay do
   use Phoenix.Component
 
   def markdown_display(assigns) do
+    assigns =
+      assign_new(assigns, :id, fn ->
+        "markdown-" <> Integer.to_string(:erlang.unique_integer([:positive]))
+      end)
+
     ~H"""
     <div
+      id={@id}
       class="markdown-container"
       phx-hook="MarkdownRenderer"
       data-show-copy-buttons={@show_copy_buttons}
@@ -59,7 +65,7 @@ defmodule DocRockerWeb.MarkdownDisplay do
           </div>
         <% end %>
 
-        <div class="markdown-content"><%= @markdown %></div>
+        <div class="markdown-content">{@markdown}</div>
       </div>
     </div>
     """
