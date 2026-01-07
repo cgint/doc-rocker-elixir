@@ -42,3 +42,6 @@ Last message: %Phoenix.Socket.Message{event: "validate", value: "query=s", ...}
 
 **Fix applied**
 - `handle_event("validate", ...)` now accepts both `%{"chat" => %{"query" => _}}` and `%{"query" => _}` payloads, falling back to the last assigned query.
+
+**Status after fix**
+- User still reported the same `FunctionClauseError` with the old `%{"query" => "s"}` payload, which indicates the running BEAM likely did not reload the updated module. Next check: restart `mix phx.server` (or run `mix clean` then restart) to ensure the new `handle_event/3` clause is loaded.
