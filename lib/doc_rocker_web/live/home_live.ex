@@ -39,7 +39,13 @@ defmodule DocRockerWeb.HomeLive do
      )}
   end
 
-  def handle_event("validate", %{"chat" => %{"query" => query}}, socket) do
+  def handle_event("validate", params, socket) do
+    query =
+      get_in(params, ["chat", "query"]) ||
+        params["query"] ||
+        socket.assigns.query ||
+        ""
+
     {count, too_long, near_limit} = query_metrics(query)
 
     {:noreply,

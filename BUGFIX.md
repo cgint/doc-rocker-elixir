@@ -1,0 +1,44 @@
+# Bugfix Log
+
+## Issue: LiveView reconnect delay and unresponsive UI after reload
+
+**Observed behavior**
+- After page reload, LiveView reconnect takes ~10 seconds.
+- Button clicks are slow or unresponsive.
+- LiveView crashes on input changes; reconnects via longpoll.
+
+**Console/server log (excerpt)**
+```
+[info] CONNECTED TO Phoenix.LiveView.Socket ... Transport: :longpoll
+[debug] MOUNT DocRockerWeb.HomeLive
+[debug] HANDLE EVENT "toggle_pick" in DocRockerWeb.HomeLive
+[debug] HANDLE EVENT "validate" in DocRockerWeb.HomeLive
+[error] GenServer ... terminating
+** (FunctionClauseError) no function clause matching in DocRockerWeb.HomeLive.handle_event/3
+    lib/doc_rocker_web/live/home_live.ex:42: DocRockerWeb.HomeLive.handle_event("validate", %{"_target" => ["query"], "query" => "h"}, ...)
+Last message: %Phoenix.Socket.Message{event: "validate", value: "query=h", ...}
+```
+
+**Additional repro (pick toggle then type, before clicking any button)**
+```
+[debug] HANDLE EVENT "toggle_pick" in DocRockerWeb.HomeLive
+  Parameters: %{"index" => "2", "value" => ""}
+[debug] HANDLE EVENT "validate" in DocRockerWeb.HomeLive
+  Parameters: %{"_target" => ["query"], "query" => "s"}
+[error] GenServer ... terminating
+** (FunctionClauseError) no function clause matching in DocRockerWeb.HomeLive.handle_event/3
+    lib/doc_rocker_web/live/home_live.ex:42: DocRockerWeb.HomeLive.handle_event("validate", %{"_target" => ["query"], "query" => "s"}, ...)
+Last message: %Phoenix.Socket.Message{event: "validate", value: "query=s", ...}
+```
+
+**Impact**
+- LiveView process terminates on input, causing reconnect delays and stalled UI events.
+
+**Likely cause**
+- `handle_event("validate", ...)` expects `%{"chat" => %{"query" => _}}` but the form submits `query` at the root level because the `<textarea>` has `name="query"` explicitly set. This leads to a `FunctionClauseError`.
+
+**Next fix candidate**
+- Accept both shapes in `handle_event/3` or align the form field naming with the handler.
+
+**Fix applied**
+- `handle_event("validate", ...)` now accepts both `%{"chat" => %{"query" => _}}` and `%{"query" => _}` payloads, falling back to the last assigned query.
