@@ -25,7 +25,6 @@ import "highlight.js/styles/github.css"
 // Establish Phoenix Socket and LiveView configuration.
 import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
-import {hooks as colocatedHooks} from "phoenix-colocated/doc_rocker"
 import topbar from "../vendor/topbar"
 
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
@@ -97,7 +96,6 @@ function copyRichText(markdownElement) {
 }
 
 const Hooks = {
-  ...colocatedHooks,
   ScrollHandler: {
     mounted() {
       this.handleEvent("scroll_to", ({id, block}) => {
