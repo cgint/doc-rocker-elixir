@@ -54,7 +54,9 @@ No `/api/mcp` endpoint exists in-app. MCP is handled externally by an stdin wrap
 
 ```
 mix setup
-mix phx.server
+cp dev.env.example dev.env
+# edit dev.env with your API keys
+./start_dev.sh
 ```
 
 ## Docker
