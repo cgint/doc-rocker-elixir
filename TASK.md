@@ -51,6 +51,7 @@
   - Added assets `package.json` with marked/highlight.js dependencies.
   - Restored documentation pick persistence via localStorage.
   - Added Cmd+Enter submit shortcut and guarded double-submit while loading.
+  - Removed unused `phoenix-colocated` hook import.
 - Next:
   - Install JS/Elixir deps (`npm install` in `assets/`, `mix deps.get`) and build assets.
   - Confirm highlight.js CSS output is loaded and markdown rendering matches Svelte output.
