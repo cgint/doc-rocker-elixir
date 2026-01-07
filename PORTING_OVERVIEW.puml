@@ -8,6 +8,7 @@ skinparam componentStyle rectangle
 skinparam shadowing false
 
 actor User
+actor "MCP Wrapper (stdin)" as MCPWrapper
 
 rectangle "Browser UI" as UI {
   component "Main Page /" as Page
@@ -19,7 +20,6 @@ rectangle "Browser UI" as UI {
 rectangle "Svelte Server" as Server {
   component "/api/chat\nSSE" as Chat
   component "/api/rock\nJSON" as Rock
-  component "/api/mcp\nJSON-RPC" as MCP
   component "SearchService" as Search
   component "PerplexitySearchEngine" as PerplexityEngine
   component "TavilySearchEngine" as TavilyEngine
@@ -50,8 +50,7 @@ Chat --> UI : status + final\nSSE events
 
 UI --> Rock : POST /api/rock\nUser-Agent required
 Rock --> Search
-
-UI --> MCP : JSON-RPC tools/call\nlist + search
+MCPWrapper --> Server : Calls existing API endpoints\n(no /api/mcp)
 
 PWA .. UI : PWA meta + SW registration
 Manifest .. UI
@@ -77,8 +76,8 @@ Requires User-Agent:
 Web-Search-Doc-Rocker-MCP/0.1.0
 end note
 
-note bottom of MCP
-Implementation code not in source extract
+note bottom of MCPWrapper
+MCP handled externally via stdin wrapper
 end note
 
 @enduml

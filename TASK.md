@@ -34,8 +34,8 @@
   - Consulted doc expert agent for LiveView UI-heavy component patterns.
   - Static asset folder from original project added to repo (`static`).
   - Extracted source system analysis into `PORTING_OVERVIEW.html`, `PORTING_OVERVIEW.puml`, and `PORTING_OVERVIEW.svg`.
+  - Confirmed there is no `/api/mcp` endpoint; MCP is handled via an external stdin wrapper that calls existing APIs.
 - Next:
-  - Confirm missing MCP handler details (not in source extract).
   - Confirm `/api/auth` server behavior if required.
   - Produce a detailed implementation plan after all spec gaps are resolved.
 
@@ -74,10 +74,11 @@
 
 ## Decisions
 
-- None yet.
+- No `/api/mcp` endpoint exists; MCP support is via an external stdin wrapper that calls the normal API.
 
 ## Migration Learnings (project-specific)
 
 - Original project static assets are now available in `static`.
 - `doc-rocker-svelte.md` is the authoritative reference for UI/CSS/behavior.
 - Source system analysis artifacts are available in `PORTING_OVERVIEW.html` and `PORTING_OVERVIEW.puml` (diagram in `PORTING_OVERVIEW.svg`).
+- MCP support is external (stdin wrapper), not an in-app HTTP endpoint.

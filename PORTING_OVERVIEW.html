@@ -241,11 +241,10 @@ data: {"type":"final","result": {"combined_search_result": {...}, "raw_search_re
         <li>Response: JSON with timestamp, request echo, and search result.</li>
       </ul>
 
-      <h3>POST /api/mcp (JSON-RPC 2.0)</h3>
+      <h3>MCP wrapper (external)</h3>
       <ul>
-        <li>Described in README with MCP protocol 2024-11-05.</li>
-        <li>Tools: <code>search_documentation</code> and <code>list_documentation_sources</code>.</li>
-        <li>Implementation code not present in <code>doc-rocker-svelte.md</code>.</li>
+        <li>No in-app <code>/api/mcp</code> endpoint exists.</li>
+        <li>MCP is handled by an external stdin wrapper that calls the normal API endpoints.</li>
       </ul>
 
       <h3>Other</h3>
@@ -322,7 +321,6 @@ SingleChatResponse: { answer, citations? }</code></pre>
     <section id="gaps">
       <h2>Known Gaps or Clarifications Needed</h2>
       <ul>
-        <li><code>/api/mcp</code> implementation not included in source extract.</li>
         <li><code>/api/auth</code> server handler not included in source extract.</li>
       </ul>
       <div class="note">
